@@ -1,0 +1,745 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Анкета · Правозахист</title>
+<!-- Единственный внешний скрипт: официальная библиотека Telegram. Больше страница ничего не загружает. -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  /* Цвета берём из темы Telegram (светлая/тёмная), запасные значения для просмотра в браузере */
+  :root {
+    --fb-bg: #eef1f5; --fb-card: #ffffff; --fb-text: #121722; --fb-hint: #7a8494;
+    --fb-accent: #1d4ed8; --fb-accent-text: #ffffff; --fb-line: rgba(0, 0, 0, .1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fb-bg: #0f1419; --fb-card: #1a2129; --fb-text: #e8ecf1; --fb-hint: #8b96a5;
+      --fb-accent: #4b8bf5; --fb-line: rgba(255, 255, 255, .1);
+    }
+  }
+  :root {
+    --bg: var(--tg-theme-secondary-bg-color, var(--fb-bg));
+    --card: var(--tg-theme-section-bg-color, var(--tg-theme-bg-color, var(--fb-card)));
+    --text: var(--tg-theme-text-color, var(--fb-text));
+    --hint: var(--tg-theme-hint-color, var(--fb-hint));
+    --accent: var(--tg-theme-button-color, var(--fb-accent));
+    --accent-text: var(--tg-theme-button-text-color, var(--fb-accent-text));
+    --line: var(--fb-line);
+    --danger: #e5484d;
+    --navy: #0b1a3d; --gold: #e6b446;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+
+  /* ---------- шапка ---------- */
+  .hero {
+    position: relative; overflow: hidden; color: #fff; padding: 14px 16px 16px;
+    border-radius: 0 0 24px 24px;
+    background:
+      radial-gradient(120% 150% at 100% 0%, rgba(230, 180, 70, .30) 0%, rgba(230, 180, 70, 0) 45%),
+      linear-gradient(160deg, #0b1a3d 0%, #13306a 70%, #1a3d80 100%);
+  }
+  .hero::before { /* лёгкий точечный узор */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255, 255, 255, .08) 1px, transparent 1.5px);
+    background-size: 16px 16px;
+  }
+  .hero-in { position: relative; max-width: 560px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    position: relative; flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: #fff; color: var(--navy); display: grid; place-items: center;
+    font-weight: 800; font-size: 14px; letter-spacing: .5px; padding-right: 5px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .15);
+  }
+  .logo i { position: absolute; right: 6px; bottom: 14px; width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+  .brand { display: flex; flex-direction: column; line-height: 1.2; }
+  .brand b { font-size: 16px; }
+  .brand span { color: rgba(255, 255, 255, .7); font-size: 13px; }
+  .count {
+    margin-left: auto; font-size: 13px; font-weight: 600; white-space: nowrap;
+    background: rgba(255, 255, 255, .13); padding: 5px 11px; border-radius: 999px;
+  }
+  .count:empty { display: none; }
+  .hero h1 { font-size: 27px; line-height: 1.2; margin: 22px 0 6px; }
+  .hero p { margin: 0; color: rgba(255, 255, 255, .78); }
+  .progress { height: 5px; border-radius: 5px; background: rgba(255, 255, 255, .18); overflow: hidden; margin-top: 14px; }
+  .progress[hidden] { display: none; }
+  .bar { height: 100%; width: 0; background: var(--gold); border-radius: 5px; transition: width .35s ease; }
+
+  /* ---------- содержимое ---------- */
+  .app { max-width: 560px; margin: 0 auto; padding: 20px 16px calc(100px + env(safe-area-inset-bottom)); }
+  .anim { animation: in .28s ease both; }
+  @keyframes in { from { opacity: 0; transform: translateY(8px); } }
+
+  h2 { font-size: 22px; line-height: 1.25; margin: 0 0 8px; }
+  .hint { color: var(--hint); margin: 0 0 14px; font-size: 15px; }
+  .list { margin: -6px 0 14px; padding-left: 20px; color: var(--hint); font-size: 15px; }
+  .list li { margin: 2px 0; }
+  .note { color: var(--hint); font-size: 14px; margin: 10px 2px 0; }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--hint); text-transform: uppercase; letter-spacing: .5px; margin: 22px 4px 10px; }
+
+  .card { background: var(--card); border-radius: 18px; padding: 16px 18px; }
+  .card p { margin: 0; }
+
+  .trust { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; }
+  .trust + .trust { border-top: 1px solid var(--line); }
+  .trust svg { flex: none; width: 24px; height: 24px; color: var(--accent); margin-top: 2px; }
+  .trust b { display: block; }
+  .trust span { color: var(--hint); font-size: 14px; }
+
+  .memo { display: flex; gap: 12px; align-items: center; margin-top: 12px; color: var(--text); text-decoration: none; font-weight: 600; }
+  .memo::after { content: "›"; margin-left: auto; color: var(--hint); font-size: 22px; line-height: 1; }
+  .memo-ic { font-size: 22px; }
+
+  .steps { counter-reset: s; }
+  .stp { display: flex; gap: 14px; align-items: center; padding: 8px 0; }
+  .stp::before {
+    counter-increment: s; content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; font-size: 14px;
+    background: var(--navy); color: #fff; box-shadow: inset 0 0 0 2px var(--gold);
+  }
+
+  .optwrap { margin-bottom: 10px; }
+  .opt {
+    display: flex; gap: 12px; align-items: center; width: 100%; text-align: left;
+    padding: 13px 14px 13px 16px; border-radius: 16px; background: var(--card); color: var(--text);
+    border: 1.5px solid transparent; font: inherit; cursor: pointer;
+    transition: border-color .15s, background-color .15s, transform .1s;
+  }
+  .opt:active { transform: scale(.99); }
+  .opt.has-icon { padding-left: 12px; }
+  .opt .lbl { flex: 1; min-width: 0; }
+  .opt .t { display: block; font-weight: 600; }
+  .opt .d { display: block; color: var(--hint); font-size: 14px; margin-top: 2px; }
+  .tile {
+    flex: none; width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center;
+  }
+  .tile svg { width: 30px; height: 30px; }
+  .opt.small .tile { width: 38px; height: 38px; border-radius: 12px; }
+  .opt.small .tile svg { width: 23px; height: 23px; }
+  .mark {
+    flex: none; width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--hint); display: grid; place-items: center; opacity: .7;
+  }
+  .opt.multi .mark { border-radius: 7px; }
+  .opt.on { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--card)); }
+  .opt.on .mark { background: var(--accent); border-color: var(--accent); opacity: 1; }
+  .opt.on .mark::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent-text); }
+  .opt.multi.on .mark::after {
+    width: 10px; height: 5px; border-radius: 0; background: none; margin-top: -3px;
+    border-left: 2.5px solid var(--accent-text); border-bottom: 2.5px solid var(--accent-text); transform: rotate(-45deg);
+  }
+  .optwrap .field { margin-top: 8px; }
+
+  .field {
+    display: block; width: 100%; padding: 14px 16px; border-radius: 14px;
+    border: 1.5px solid var(--line); background: var(--card); color: var(--text); font: inherit;
+  }
+  .field::placeholder { color: var(--hint); }
+  .field:focus { outline: none; border-color: var(--accent); }
+  textarea.field { min-height: 170px; resize: vertical; }
+  .counter { color: var(--hint); font-size: 13px; text-align: right; margin-top: 6px; }
+  .counter.over { color: var(--danger); font-weight: 600; }
+  .error { color: var(--danger); font-size: 14px; margin-top: 12px; }
+  .error:empty { display: none; }
+
+  .alert {
+    display: flex; gap: 10px; margin-top: 14px; padding: 12px 14px; border-radius: 14px; font-size: 15px;
+    background: color-mix(in srgb, var(--danger) 12%, var(--card)); border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  }
+
+  .rv { background: var(--card); border-radius: 16px; padding: 12px 16px; margin-bottom: 10px; display: flex; gap: 12px; align-items: flex-start; }
+  .rv-body { flex: 1; min-width: 0; }
+  .rv-q { color: var(--hint); font-size: 13px; }
+  .rv-a { white-space: pre-line; overflow-wrap: anywhere; }
+  .rv-edit { flex: none; border: 0; background: none; color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; padding: 2px 0; cursor: pointer; }
+
+  .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; justify-content: center;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--bg);
+    border-top: 1px solid var(--line);
+  }
+  .btn {
+    flex: 1; max-width: 264px; padding: 15px 18px; border: 0; border-radius: 14px;
+    font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1; cursor: pointer;
+  }
+  .btn.primary { background: var(--accent); color: var(--accent-text); }
+  .btn.primary:disabled { opacity: .4; cursor: default; }
+  .btn.ghost { background: var(--card); color: var(--text); flex: 0 0 auto; }
+  .btn[hidden] { display: none; }
+
+  pre { white-space: pre-wrap; word-break: break-word; background: var(--card); padding: 12px; border-radius: 12px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="top">
+      <div class="logo">ПЗ<i></i></div>
+      <div class="brand"><b>Правозахист</b><span>Анкета звернення</span></div>
+      <div class="count" id="count"></div>
+    </div>
+    <div id="heroText"></div>
+    <div class="progress" id="progress"><div class="bar" id="bar"></div></div>
+  </div>
+</header>
+<div class="app"><main id="screen"></main></div>
+<footer class="nav">
+  <button class="btn ghost" id="back" type="button">Назад</button>
+  <button class="btn primary" id="next" type="button">Почати</button>
+</footer>
+
+<script>
+// ============================================================
+//  ВОПРОСЫ АНКЕТЫ. Тексты меняются здесь.
+//  short — короткое название вопроса в карточке, которая приходит админам.
+//  Вариант ответа: строка или {t: текст, d: пояснение, icon: значок из ICONS,
+//  input: подсказка поля для уточнения, req: уточнение обязательно, urgent: пометить анкету срочной}.
+// ============================================================
+
+const INTRO = "Привіт! Це анкета для тих, хто зіткнувся з проблемою і хоче отримати допомогу. " +
+  "Вона займе 1–2 хвилини. Відповіді бачимо тільки ми — нікуди не передаємо без вашого дозволу. " +
+  "Якщо ви в небезпеці — напишіть це в першому питанні, ми зреагуємо швидше.";
+
+const TRUST = [
+  ["lock", "Конфіденційно", "Відповіді бачить лише наша команда. Без вашого дозволу ми нікуди їх не передаємо."],
+  ["send", "Напряму через Telegram", "Анкета не відправляє дані на сторонні сайти: відповіді одразу надходять у наш бот."],
+  ["phone", "Нічого не лишається на телефоні", "Анкета не зберігає ваші відповіді на пристрої."],
+];
+const HOW = ["Ви заповнюєте анкету", "Ми вивчаємо вашу ситуацію", "Зв'язуємося з вами протягом 24 годин"];
+
+const OTHER = { t: "Інше", input: "Напишіть, що саме", req: true };
+const WHEN = ["Сьогодні", "Вчора", "Цього тижня", { t: "Раніше", input: "Вкажіть приблизно коли", req: true }];
+
+const CONTACT = {
+  id: "contact", short: "Контакт", type: "text", max: 150, prefill: true,
+  title: "Ваше ім'я та контакт для зв'язку",
+  hint: "Telegram @username або телефон",
+  placeholder: "Наприклад: Олена, @olena або +380…",
+};
+
+const DETAILS = {
+  id: "details", short: "Додатково", type: "area", optional: true,
+  title: "Додаткова інформація",
+  hint: "Необов'язково. Чи є щось важливе, що ми не запитали? Будь-які деталі, які допоможуть зрозуміти вашу ситуацію:",
+  list: [
+    "імена, прізвища, посади",
+    "адреси або райони, де це сталося",
+    "дати або час",
+    "свідки або люди, які можуть підтвердити",
+    "посилання на фото, відео, дописи, новини",
+    "номери телефонів, документів",
+    "що ви вже намагалися зробити",
+  ],
+  placeholder: "Напишіть усе, що вважаєте за потрібне. Якщо нічого додати — напишіть «Немає».",
+  note: "📎 Фото, відео та документи можна надіслати прямо в чат бота після анкети.",
+};
+
+const MAIN = {
+  id: "topic", short: "Тема", type: "one",
+  title: "З чим ви зіткнулися?",
+  hint: "Виберіть один варіант",
+  options: [
+    { t: "ТЦК", icon: "bus", d: "Незаконна мобілізація, затримання, побори, безпредел", branch: "tck", short: "ТЦК" },
+    { t: "Проблеми в армії", icon: "helmet", d: "Умови служби, СЗЧ, відсутність ротації, медична допомога, командування", branch: "army", short: "Армія" },
+    { t: "Дії влади", icon: "building", d: "Корупція, перевищення повноважень, бездіяльність, несправедливість", branch: "gov", short: "Дії влади" },
+    { t: "Інше", icon: "question", d: "Опишете коротко на наступному кроці", branch: "other", short: "Інше" },
+  ],
+};
+
+const BRANCHES = {
+  tck: [
+    { id: "tck_what", short: "Що сталося", type: "many", title: "Що саме сталося?", hint: "Можна вибрати кілька",
+      options: ["Затримали / забрали без повістки", "Побили або застосували силу",
+        { t: "Утримували незаконно", input: "Де і скільки часу?" },
+        "Вимагали гроші / хабар", "Відправили на ВЛК без медичного огляду",
+        "Вручили повістку з порушеннями", OTHER] },
+    { id: "tck_when", short: "Коли", type: "one", title: "Коли це сталося?", options: WHEN },
+    { id: "tck_danger", short: "Небезпека зараз", type: "one", title: "Ви зараз у небезпеці?",
+      options: [{ t: "Так, мене утримують / мені загрожує небезпека", urgent: true },
+        "Ні, я на свободі, але ситуація складна", "Не знаю"] },
+    { id: "tck_docs", short: "Документи", type: "one", title: "Чи є у вас документи?",
+      hint: "Повістка, рішення ВЛК, довідки", options: ["Так, можу надати", "Ні", "Не знаю"] },
+    { id: "tck_appeal", short: "Зверталися", type: "one",
+      title: "Чи зверталися ви до поліції / прокуратури / правозахисників?",
+      options: ["Так, але без результату", "Ні, не знаю куди", "Ні, боюся", OTHER] },
+    { id: "tck_help", short: "Потрібна допомога", type: "one", title: "Яка допомога потрібна насамперед?",
+      options: ["Юридична консультація", "Адвокат для суду", "Допомогти зв'язатися з правозахисниками",
+        "Просто роз'яснити, що робити", OTHER] },
+    CONTACT, DETAILS,
+  ],
+  army: [
+    { id: "army_what", short: "Що сталося", type: "many", title: "Що саме сталося?", hint: "Можна вибрати кілька",
+      options: ["Самовільне залишення частини (СЗЧ)", "Відмова від служби / небажання воювати",
+        "Умови служби: відсутність ротацій, безстрокова служба", "Медична допомога: не надають, ігнорують",
+        "Побиття / знущання з боку командування", "Проблеми з документами / виплатами", OTHER] },
+    { id: "army_where", short: "У частині", type: "one", title: "Ви зараз у частині?",
+      options: ["Так", "Ні, я поза частиною", "Не знаю (переховуюсь)"] },
+    { id: "army_danger", short: "Загроза життю/здоров'ю", type: "one", title: "Чи є загроза життю або здоров'ю?",
+      options: [{ t: "Так, критична", urgent: true }, "Так, але не критична", "Ні", "Не знаю"] },
+    { id: "army_need", short: "Потрібна допомога", type: "one", title: "Чи потрібна юридична або психологічна допомога?",
+      options: ["Юридична", "Психологічна", "Обидві", "Поки не знаю"] },
+    { id: "army_proof", short: "Докази", type: "one", title: "Чи можете надати документи або докази?",
+      hint: "Фото, відео, довідки", options: ["Так", "Ні", "Можливо, але потрібна допомога, як це зробити"] },
+    CONTACT, DETAILS,
+  ],
+  gov: [
+    { id: "gov_what", short: "Проблема", type: "many", title: "З якою саме проблемою зіткнулися?", hint: "Можна вибрати кілька",
+      options: ["Корупція / хабар", "Перевищення повноважень чиновником",
+        "Бездіяльність влади (не реагують на звернення)",
+        "Несправедливе рішення (суд, органи місцевого самоврядування)", OTHER] },
+    { id: "gov_proof", short: "Докази", type: "one", title: "Чи є у вас докази?",
+      hint: "Документи, листування, фото, відео", options: ["Так", "Ні", "Потрібна допомога, як їх зібрати"] },
+    { id: "gov_appeal", short: "Зверталися", type: "one",
+      title: "Чи зверталися ви до правоохоронних або антикорупційних органів?",
+      options: ["Так, без результату", "Ні, не знаю куди", "Боюся звертатися", OTHER] },
+    { id: "gov_help", short: "Потрібна допомога", type: "one", title: "Яка допомога потрібна насамперед?",
+      options: ["Юридична консультація", "Скласти звернення / скаргу", "Підказати, куди звертатися", OTHER] },
+    CONTACT, DETAILS,
+  ],
+  other: [
+    { id: "oth_what", short: "Що сталося", type: "area", max: 1000, title: "Опишіть коротко, що сталося",
+      hint: "2–3 речення. Наприклад: «Мене незаконно звільнили з роботи після того, як я відмовився платити хабар» " +
+        "або «Мій брат зник, поліція не реагує».",
+      placeholder: "Що сталося?" },
+    { id: "oth_who", short: "Учасники", type: "many", title: "Хто є учасником ситуації?", hint: "Можна вибрати кілька",
+      options: [
+        { t: "ТЦК / військкомат", icon: "bus" },
+        { t: "Військова частина / командування", icon: "helmet" },
+        { t: "Органи влади / чиновник", icon: "building" },
+        { t: "Поліція", icon: "police" },
+        { t: "Медична установа / лікарня", icon: "hospital" },
+        { t: "Суд / прокуратура", icon: "court" },
+        { t: "Приватна особа / бізнес", icon: "person" },
+        { t: "Інше", icon: "question", input: "Напишіть, хто саме", req: true },
+      ] },
+    { id: "oth_when", short: "Коли", type: "one", title: "Коли це сталося?", options: WHEN },
+    { id: "oth_danger", short: "Загроза зараз", type: "one",
+      title: "Чи є загроза вашому життю, здоров'ю або свободі прямо зараз?",
+      options: [{ t: "Так, критична", d: "Мене утримують, погрожують, переслідують", urgent: true },
+        "Є, але не критична", "Ні", "Не знаю"] },
+    { id: "oth_help", short: "Потрібна допомога", type: "one", title: "Яка допомога вам потрібна насамперед?",
+      options: ["Юридична консультація", "Адвокат для суду або захисту", "Допомогти зв'язатися з правозахисниками",
+        "Підказати, куди звертатися", "Просто вислухати і роз'яснити, що робити", OTHER] },
+    { id: "oth_proof", short: "Докази", type: "one", title: "Чи є у вас документи, докази або підтвердження?",
+      hint: "Фото, відео, листування, довідки",
+      options: ["Так, можу надати", "Ні", "Можливо, але потрібна допомога, як це зробити", "Не знаю"] },
+    CONTACT, DETAILS,
+  ],
+};
+
+const FINAL = [
+  { id: "callback", short: "Зв'язатися за 24 год", type: "one",
+    title: "Чи бажаєте ви, щоб ми зв'язалися з вами протягом 24 годин?",
+    options: ["Так", "Ні, достатньо відповіді в боті", { t: "Я в небезпеці, зв'яжіться якнайшвидше", urgent: true }] },
+];
+
+const URGENT_NOTE = "Ми позначимо вашу анкету як термінову. Якщо вас утримують прямо зараз — " +
+  "після відправки напишіть у бот «ТЕРМІНОВО».";
+
+// ============================================================
+//  Значки (рисуем сами, чтобы выглядели одинаково на всех устройствах)
+// ============================================================
+
+const ICONS = {
+  bus: ["#e6e8ec", "#121418",
+    '<path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H15c.5 0 .9.2 1.2.6l4.3 5.3c.3.4.5.8.5 1.3V16a1 1 0 0 1-1 1h-1.1a2.5 2.5 0 0 0-4.8 0H9.4a2.5 2.5 0 0 0-4.8 0H4a1 1 0 0 1-1-1z"/>' +
+    '<path fill="#fff" d="M5 7h3.6v3.6H5zM10.2 7h3.6v3.6h-3.6zM15.4 7h.2l2.9 3.6h-3.1z"/>' +
+    '<circle cx="7" cy="17.5" r="2"/><circle cx="16.6" cy="17.5" r="2"/>'],
+  helmet: ["#e7ecdc", "#4b5a2a",
+    '<path d="M2.8 15.5a9.2 10.5 0 0 1 18.4 0z"/><rect x="1" y="15.3" width="22" height="3" rx="1.5"/>' +
+    '<path fill="#fff" opacity=".3" d="M3.9 10.6h16.2l.6 1.7H3.3z"/>'],
+  building: ["#e3eafb", "#1d3a8a",
+    '<path d="M12 2.5 2.5 7.6V9h19V7.6z"/><rect x="4" y="10.2" width="2.6" height="7"/><rect x="8.5" y="10.2" width="2.6" height="7"/>' +
+    '<rect x="12.9" y="10.2" width="2.6" height="7"/><rect x="17.4" y="10.2" width="2.6" height="7"/><rect x="2.5" y="18.2" width="19" height="2.6" rx=".6"/>'],
+  question: ["#eceef2", "#626b78",
+    '<circle cx="12" cy="12" r="10"/><path fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" d="M9.3 9.4a2.8 2.8 0 1 1 3.9 2.6c-.7.3-1.2 1-1.2 1.8v.5"/>' +
+    '<circle cx="12" cy="17.3" r="1.3" fill="#fff"/>'],
+  police: ["#e3eafb", "#1e40af",
+    '<path d="M12 2 4 5v6.2c0 5 3.4 8.9 8 10.8 4.6-1.9 8-5.8 8-10.8V5z"/>' +
+    '<path fill="#fff" d="m12 7.2 1.4 2.9 3.2.4-2.3 2.2.6 3.1-2.9-1.5-2.9 1.5.6-3.1-2.3-2.2 3.2-.4z"/>'],
+  hospital: ["#fde8e8", "#dc2626",
+    '<rect x="3" y="3" width="18" height="18" rx="4.5"/><path fill="#fff" d="M10.4 7h3.2v3.4H17v3.2h-3.4V17h-3.2v-3.4H7v-3.2h3.4z"/>'],
+  court: ["#f6eedb", "#8a6416",
+    '<rect x="11.2" y="4.5" width="1.6" height="13.5"/><circle cx="12" cy="4" r="1.6"/><rect x="3.5" y="6.4" width="17" height="1.6" rx=".8"/>' +
+    '<rect x="7" y="18" width="10" height="2.4" rx="1.2"/><path fill="none" stroke="currentColor" stroke-width="1.1" d="M5.5 8 3 13.5M5.5 8 8 13.5M18.5 8 16 13.5M18.5 8 21 13.5"/>' +
+    '<path d="M2.3 13.5h6.4a3.2 3.2 0 0 1-6.4 0zM15.3 13.5h6.4a3.2 3.2 0 0 1-6.4 0z"/>'],
+  person: ["#e6f4ec", "#1f7a4a",
+    '<circle cx="12" cy="7.5" r="4.2"/><path d="M3.8 21a8.2 7.6 0 0 1 16.4 0z"/>'],
+};
+
+const LINE_ICONS = {
+  lock: '<rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/>',
+  send: '<path d="M21 3 3 10.5l7 2.5 2.5 7z"/><path d="m10 13 4.5-4.5"/>',
+  phone: '<rect x="6.5" y="2.5" width="11" height="19" rx="2.5"/><path d="m9.5 12 2 2 3.5-3.5"/>',
+};
+
+function tile(name) {
+  const [bg, fg, body] = ICONS[name];
+  const t = el("span", "tile");
+  t.style.background = bg;
+  t.style.color = fg;
+  t.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${body}</svg>`;
+  return t;
+}
+
+function lineIcon(name) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  s.setAttribute("viewBox", "0 0 24 24");
+  s.setAttribute("fill", "none");
+  s.setAttribute("stroke", "currentColor");
+  s.setAttribute("stroke-width", "1.8");
+  s.setAttribute("stroke-linecap", "round");
+  s.setAttribute("stroke-linejoin", "round");
+  s.innerHTML = LINE_ICONS[name];
+  return s;
+}
+
+// ============================================================
+//  Логика формы
+// ============================================================
+
+const LIMIT = 4096; // Telegram принимает от формы не больше 4096 байт
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+const inTelegram = !!(tg && tg.initData);
+const can = v => !!(tg && tg.isVersionAtLeast && tg.isVersionAtLeast(v));
+if (tg) {
+  tg.ready();
+  tg.expand();
+  if (can("6.9")) tg.setHeaderColor("#0b1a3d"); // верхняя полоса Telegram в цвет шапки
+}
+
+const $screen = document.getElementById("screen");
+const $next = document.getElementById("next");
+const $back = document.getElementById("back");
+const $bar = document.getElementById("bar");
+const $count = document.getElementById("count");
+const $heroText = document.getElementById("heroText");
+const $progress = document.getElementById("progress");
+
+// Ответы живут только в памяти страницы: на телефоне ничего не сохраняем.
+const answers = {};
+let step = 0;
+let editing = false; // правим ответ с экрана проверки: «Зберегти» вернёт обратно
+let autoTimer = null;
+let done = false;
+
+const opt = o => (typeof o === "string" ? { t: o } : o);
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function steps() {
+  const list = ["intro", MAIN];
+  const a = answers[MAIN.id];
+  if (a && a.sel != null) list.push(...BRANCHES[MAIN.options[a.sel].branch], ...FINAL, "review");
+  return list;
+}
+
+function answer(q) {
+  if (!answers[q.id]) {
+    if (q.type === "one") answers[q.id] = { sel: null, extra: {} };
+    else if (q.type === "many") answers[q.id] = { sel: [], extra: {} };
+    else {
+      const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+      answers[q.id] = { text: q.prefill && u && u.username ? "@" + u.username : "" };
+    }
+  }
+  return answers[q.id];
+}
+
+function selected(q, a) {
+  return q.type === "one" ? (a.sel == null ? [] : [a.sel]) : a.sel.slice().sort((x, y) => x - y);
+}
+
+function valid(q) {
+  if (typeof q === "string") return true;
+  const a = answer(q);
+  if (q.type === "one" || q.type === "many") {
+    const sel = selected(q, a);
+    return sel.length > 0 && sel.every(i => !opt(q.options[i]).req || (a.extra[i] || "").trim());
+  }
+  return q.optional || a.text.trim().length > 0;
+}
+
+function answerText(q) {
+  const a = answer(q);
+  if (q.type === "one" || q.type === "many") {
+    const items = selected(q, a).map(i => {
+      const extra = (a.extra[i] || "").trim();
+      return opt(q.options[i]).t + (extra ? ": " + extra : "");
+    });
+    return items.length > 1 ? items.map(s => "• " + s).join("\n") : (items[0] || "");
+  }
+  return a.text.trim();
+}
+
+function urgent(q) {
+  if (q.type !== "one" && q.type !== "many") return false;
+  return selected(q, answer(q)).some(i => opt(q.options[i]).urgent);
+}
+
+function questions() {
+  return steps().filter(s => typeof s !== "string" && s !== MAIN);
+}
+
+function payload() {
+  const pairs = [];
+  for (const q of questions()) {
+    const text = answerText(q);
+    if (text) pairs.push([q.short, text]);
+  }
+  return {
+    v: 1,
+    p: tg && tg.platform ? tg.platform : "unknown",
+    m: /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) ? 1 : 0,
+    t: MAIN.options[answer(MAIN).sel].short,
+    u: questions().some(urgent) ? 1 : 0,
+    q: pairs,
+  };
+}
+
+const bytes = obj => new TextEncoder().encode(JSON.stringify(obj)).length;
+
+function haptic(kind) {
+  if (!can("6.1")) return;
+  if (kind) tg.HapticFeedback.notificationOccurred(kind);
+  else tg.HapticFeedback.selectionChanged();
+}
+
+// ---------- экраны ----------
+
+function render(keepScroll) {
+  const list = steps();
+  const s = list[step];
+  const total = list.length > 2 ? list.length - 2 : 0; // без приветствия и проверки
+  const view = s === "intro" ? introScreen() : s === "review" ? reviewScreen(list) : questionScreen(s);
+  if (!keepScroll) view.classList.add("anim");
+  $screen.replaceChildren(view);
+
+  $heroText.replaceChildren();
+  if (s === "intro") {
+    $heroText.append(el("h1", null, "Отримайте допомогу"), el("p", null, "Анкета займе 1–2 хвилини"));
+  }
+  $progress.hidden = s === "intro";
+  $count.textContent = s === "intro" ? "" : s === "review" ? "Перевірка" : total ? `${step} / ${total}` : `Крок ${step}`;
+  $bar.style.width = s === "review" ? "100%" : total ? Math.round((step / (total + 1)) * 100) + "%" : "6%";
+
+  $back.hidden = step === 0;
+  $next.textContent = step === 0 ? "Почати" : s === "review" ? "Надіслати" : editing ? "Зберегти" : "Далі";
+  updateNext();
+
+  if (can("6.1")) step > 0 ? tg.BackButton.show() : tg.BackButton.hide();
+  if (can("6.2") && step > 0) tg.enableClosingConfirmation();
+  if (!keepScroll) window.scrollTo(0, 0);
+}
+
+function introScreen() {
+  const box = el("section");
+  const intro = el("div", "card");
+  intro.append(el("p", null, INTRO));
+  box.append(intro);
+
+  box.append(el("div", "section-title", "Чому нам можна довіряти"));
+  const trust = el("div", "card");
+  for (const [icon, title, text] of TRUST) {
+    const row = el("div", "trust");
+    const body = el("div");
+    body.append(el("b", null, title), el("span", null, text));
+    row.append(lineIcon(icon), body);
+    trust.append(row);
+  }
+  box.append(trust);
+
+  box.append(el("div", "section-title", "Як це працює"));
+  const how = el("div", "card steps");
+  HOW.forEach(t => how.append(el("div", "stp", t)));
+  box.append(how);
+
+  const memo = el("a", "card memo");
+  memo.href = "prava.html?from=form";
+  memo.append(el("span", "memo-ic", "⚖️"), el("span", "memo-t", "Пам'ятка «Ваші права»: як діяти, якщо зупинили ТЦК"));
+  box.append(memo);
+  return box;
+}
+
+function questionScreen(q) {
+  const a = answer(q);
+  const box = el("section");
+  box.append(el("h2", null, q.title));
+  if (q.hint) box.append(el("p", "hint", q.hint));
+  if (q.list) {
+    const ul = el("ul", "list");
+    q.list.forEach(t => ul.append(el("li", null, t)));
+    box.append(ul);
+  }
+
+  if (q.type === "one" || q.type === "many") {
+    q.options.forEach((raw, i) => box.append(optionRow(q, a, opt(raw), i)));
+    if (urgent(q)) {
+      const alert = el("div", "alert");
+      alert.append(el("span", null, "🚨"), el("span", null, URGENT_NOTE));
+      box.append(alert);
+    }
+  } else {
+    const field = el(q.type === "area" ? "textarea" : "input", "field");
+    field.value = a.text;
+    if (q.placeholder) field.placeholder = q.placeholder;
+    if (q.max) field.maxLength = q.max;
+    const counter = el("div", "counter");
+    field.addEventListener("input", () => { a.text = field.value; updateNext(); showLeft(counter); });
+    box.append(field);
+    if (q.type === "area") { box.append(counter); showLeft(counter); }
+  }
+  if (q.note) box.append(el("p", "note", q.note));
+  box.append(el("div", "error"));
+  return box;
+}
+
+function optionRow(q, a, o, i) {
+  const multi = q.type === "many";
+  const on = multi ? a.sel.includes(i) : a.sel === i;
+  const wrap = el("div", "optwrap");
+  const cls = ["opt"];
+  if (multi) cls.push("multi");
+  if (on) cls.push("on");
+  if (o.icon) cls.push("has-icon", o.d ? "big" : "small");
+  const b = el("button", cls.join(" "));
+  b.type = "button";
+  if (o.icon) b.append(tile(o.icon));
+  const label = el("span", "lbl");
+  label.append(el("span", "t", o.t));
+  if (o.d) label.append(el("span", "d", o.d));
+  b.append(label, el("span", "mark"));
+  b.addEventListener("click", () => choose(q, a, o, i));
+  wrap.append(b);
+
+  if (o.input && on) {
+    const field = el("input", "field");
+    field.placeholder = o.input;
+    field.maxLength = 200;
+    field.value = a.extra[i] || "";
+    field.dataset.i = i;
+    field.addEventListener("input", () => { a.extra[i] = field.value; updateNext(); });
+    wrap.append(field);
+  }
+  return wrap;
+}
+
+function choose(q, a, o, i) {
+  clearTimeout(autoTimer);
+  if (q.type === "many") {
+    a.sel = a.sel.includes(i) ? a.sel.filter(x => x !== i) : [...a.sel, i];
+  } else {
+    if (q === MAIN && a.sel !== i) editing = false; // сменили тему: дальше другие вопросы
+    a.sel = i;
+  }
+  haptic(o.urgent && (q.type === "one" || a.sel.includes(i)) ? "warning" : null);
+  render(true);
+  const field = $screen.querySelector(`input[data-i="${i}"]`);
+  if (field) { field.focus(); return; }
+  // один вариант без уточнения: сразу переходим дальше (кроме «опасности», чтобы человек увидел подсказку)
+  if (q.type === "one" && !o.urgent) autoTimer = setTimeout(() => go(1), 260);
+}
+
+function reviewScreen(list) {
+  const box = el("section");
+  box.append(el("h2", null, "Перевірте відповіді"));
+  box.append(el("p", "hint", "Натисніть «Змінити», щоб виправити відповідь. Якщо все правильно — надсилайте."));
+  for (const q of list) {
+    if (typeof q === "string") continue;
+    const text = answerText(q);
+    if (!text) continue;
+    const row = el("div", "rv");
+    const body = el("div", "rv-body");
+    body.append(el("div", "rv-q", q.title), el("div", "rv-a", text));
+    const edit = el("button", "rv-edit", "Змінити");
+    edit.type = "button";
+    edit.addEventListener("click", () => {
+      editing = q !== MAIN;
+      step = steps().indexOf(q);
+      render();
+    });
+    row.append(body, edit);
+    box.append(row);
+  }
+  box.append(el("div", "error"));
+  return box;
+}
+
+function showLeft(counter) {
+  const left = LIMIT - bytes(payload());
+  counter.textContent = left < 0
+    ? `Забагато тексту: скоротіть приблизно на ${Math.ceil(-left / 2)} символів`
+    : `Залишилось приблизно ${Math.floor(left / 2)} символів`;
+  counter.classList.toggle("over", left < 0);
+}
+
+function updateNext() {
+  $next.disabled = !valid(steps()[step]);
+}
+
+function showError(text) {
+  const box = $screen.querySelector(".error");
+  if (box) box.textContent = text;
+  haptic("error");
+}
+
+function go(delta) {
+  clearTimeout(autoTimer);
+  const list = steps();
+  const s = list[step];
+  if (delta > 0) {
+    if (!valid(s)) return;
+    if (s === "review") return submit();
+    if (editing) { editing = false; step = steps().length - 1; render(); return; }
+  } else {
+    editing = false;
+  }
+  step = Math.max(0, Math.min(steps().length - 1, step + delta));
+  render();
+}
+
+function submit() {
+  const data = payload();
+  const size = bytes(data);
+  if (size > LIMIT) {
+    showError(`Відповідь задовга. Скоротіть текст приблизно на ${Math.ceil((size - LIMIT) / 2)} символів.`);
+    return;
+  }
+  if (inTelegram) {
+    if (tg.initDataUnsafe && tg.initDataUnsafe.query_id) {
+      showError("Відкрийте анкету кнопкою «Заповнити анкету» внизу чату з ботом.");
+      return;
+    }
+    haptic("success");
+    if (can("6.2")) tg.disableClosingConfirmation();
+    tg.sendData(JSON.stringify(data)); // Telegram сам закроет форму
+    return;
+  }
+  // Просмотр в обычном браузере: показываем, что ушло бы боту
+  done = true;
+  const box = el("section", "anim");
+  box.append(el("h2", null, "Дякуємо!"));
+  box.append(el("p", "hint", `Режим перегляду поза Telegram: дані нікуди не відправлено. Розмір: ${size} з ${LIMIT} байт.`));
+  box.append(el("pre", null, JSON.stringify(data, null, 2)));
+  $screen.replaceChildren(box);
+  $count.textContent = "Готово";
+  $back.hidden = true;
+  $next.hidden = true;
+}
+
+$next.addEventListener("click", () => go(1));
+$back.addEventListener("click", () => go(-1));
+if (can("6.1")) tg.BackButton.onClick(() => { if (!done) go(-1); });
+render();
+</script>
+</body>
+</html>

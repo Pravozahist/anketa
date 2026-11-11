@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ваші права · Правозахист</title>
+<!-- Единственный внешний скрипт: официальная библиотека Telegram -->
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+  :root {
+    --fb-bg: #eef1f5; --fb-card: #ffffff; --fb-text: #121722; --fb-hint: #6f7987;
+    --fb-accent: #1d4ed8; --fb-accent-text: #ffffff; --fb-line: rgba(0, 0, 0, .1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --fb-bg: #0f1419; --fb-card: #1a2129; --fb-text: #e8ecf1; --fb-hint: #8b96a5;
+      --fb-accent: #4b8bf5; --fb-line: rgba(255, 255, 255, .1);
+    }
+  }
+  :root {
+    --bg: var(--tg-theme-secondary-bg-color, var(--fb-bg));
+    --card: var(--tg-theme-section-bg-color, var(--tg-theme-bg-color, var(--fb-card)));
+    --text: var(--tg-theme-text-color, var(--fb-text));
+    --hint: var(--tg-theme-hint-color, var(--fb-hint));
+    --accent: var(--tg-theme-button-color, var(--fb-accent));
+    --accent-text: var(--tg-theme-button-text-color, var(--fb-accent-text));
+    --line: var(--fb-line);
+    --danger: #e5484d; --ok: #1f9d55;
+    --navy: #0b1a3d; --gold: #e6b446;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; background: var(--bg); color: var(--text); }
+  body { font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  a { color: var(--accent); }
+
+  .hero {
+    position: relative; overflow: hidden; color: #fff; padding: 14px 16px 22px;
+    border-radius: 0 0 24px 24px;
+    background:
+      radial-gradient(120% 150% at 100% 0%, rgba(230, 180, 70, .30) 0%, rgba(230, 180, 70, 0) 45%),
+      linear-gradient(160deg, #0b1a3d 0%, #13306a 70%, #1a3d80 100%);
+  }
+  .hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(255, 255, 255, .08) 1px, transparent 1.5px);
+    background-size: 16px 16px;
+  }
+  .hero-in { position: relative; max-width: 620px; margin: 0 auto; }
+  .top { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    position: relative; flex: none; width: 40px; height: 40px; border-radius: 50%;
+    background: #fff; color: var(--navy); display: grid; place-items: center;
+    font-weight: 800; font-size: 14px; letter-spacing: .5px; padding-right: 5px;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .15);
+  }
+  .logo i { position: absolute; right: 6px; bottom: 14px; width: 4px; height: 4px; border-radius: 50%; background: var(--gold); }
+  .brand { display: flex; flex-direction: column; line-height: 1.2; }
+  .brand b { font-size: 16px; }
+  .brand span { color: rgba(255, 255, 255, .7); font-size: 13px; }
+  .hero h1 { font-size: 27px; line-height: 1.2; margin: 22px 0 6px; }
+  .hero p { margin: 0; color: rgba(255, 255, 255, .8); }
+  .date {
+    display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 600;
+    background: rgba(255, 255, 255, .13); padding: 5px 11px; border-radius: 999px;
+  }
+
+  .app { max-width: 620px; margin: 0 auto; padding: 20px 16px calc(96px + env(safe-area-inset-bottom)); }
+  .section-title { font-size: 13px; font-weight: 700; color: var(--hint); text-transform: uppercase; letter-spacing: .5px; margin: 24px 4px 10px; }
+  .card { background: var(--card); border-radius: 18px; padding: 16px 18px; }
+  .card p { margin: 0 0 10px; }
+  .card p:last-child { margin: 0; }
+
+  .alert {
+    border-radius: 18px; padding: 14px 16px; font-size: 15px;
+    background: color-mix(in srgb, var(--danger) 12%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  }
+
+  /* 5 шагов */
+  .steps { counter-reset: s; margin: 0; padding: 0; list-style: none; }
+  .steps li { display: flex; gap: 14px; padding: 10px 0; }
+  .steps li + li { border-top: 1px solid var(--line); }
+  .steps li::before {
+    counter-increment: s; content: counter(s); flex: none; width: 28px; height: 28px; border-radius: 50%;
+    display: grid; place-items: center; font-weight: 700; font-size: 14px; margin-top: 1px;
+    background: var(--navy); color: #fff; box-shadow: inset 0 0 0 2px var(--gold);
+  }
+  .steps b { display: block; }
+  .steps span { color: var(--hint); font-size: 15px; }
+
+  /* разделы-гармошки */
+  details { background: var(--card); border-radius: 18px; margin-bottom: 10px; overflow: hidden; }
+  summary {
+    list-style: none; cursor: pointer; padding: 15px 16px; display: flex; gap: 12px; align-items: center;
+    font-weight: 600;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary .ic { flex: none; width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; font-size: 20px; }
+  summary .tt { flex: 1; }
+  summary::after {
+    content: ""; flex: none; width: 9px; height: 9px; margin-right: 4px;
+    border-right: 2px solid var(--hint); border-bottom: 2px solid var(--hint); transform: rotate(45deg) translateY(-3px);
+    transition: transform .2s;
+  }
+  details[open] summary::after { transform: rotate(-135deg) translateX(-2px); }
+  .body { padding: 0 18px 16px; }
+  .body ul { margin: 0; padding-left: 20px; }
+  .body li { margin: 6px 0; }
+  .body p { margin: 8px 0; }
+  .law { color: var(--hint); font-size: 13px; }
+  .yes li::marker { content: "✓  "; color: var(--ok); font-weight: 700; }
+  .no li::marker { content: "✕  "; color: var(--danger); font-weight: 700; }
+
+  /* контакты */
+  .contact { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
+  .contact + .contact { border-top: 1px solid var(--line); }
+  .contact div { flex: 1; min-width: 0; }
+  .contact b { display: block; }
+  .contact span { color: var(--hint); font-size: 14px; }
+  .contact a.num {
+    flex: none; text-decoration: none; font-weight: 700; white-space: nowrap;
+    background: color-mix(in srgb, var(--accent) 12%, var(--card)); color: var(--accent);
+    padding: 8px 12px; border-radius: 12px;
+  }
+
+  .sources { font-size: 13px; color: var(--hint); }
+  .sources li { margin: 4px 0; overflow-wrap: anywhere; }
+  .disclaimer { font-size: 14px; color: var(--hint); margin-top: 18px; }
+
+  .nav {
+    position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; justify-content: center;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: var(--bg); border-top: 1px solid var(--line);
+  }
+  .btn {
+    flex: 1; max-width: 300px; padding: 15px 18px; border: 0; border-radius: 14px; text-align: center; text-decoration: none;
+    font-family: inherit; font-size: 16px; font-weight: 600; line-height: 1; cursor: pointer;
+    background: var(--accent); color: var(--accent-text);
+  }
+  .btn.ghost { background: var(--card); color: var(--text); flex: 0 0 auto; }
+  .btn[hidden] { display: none; }
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="top">
+      <div class="logo">ПЗ<i></i></div>
+      <div class="brand"><b>Правозахист</b><span>Пам'ятка</span></div>
+    </div>
+    <h1>Ваші права при зустрічі з ТЦК</h1>
+    <p>Коротко і по ділу: як діяти, що можна і чого не можна. Тільки перевірені норми з посиланнями на джерела.</p>
+    <span class="date">Актуально на листопад 2026</span>
+  </div>
+</header>
+
+<main class="app">
+  <div class="alert">🚨 <b>Якщо вас б'ють або незаконно утримують</b> — телефонуйте <a href="tel:102">102</a> і напишіть нам у бот «ТЕРМІНОВО».</div>
+
+  <div class="section-title">Якщо вас зупинили: 5 кроків</div>
+  <div class="card">
+    <ol class="steps">
+      <li><div><b>Зберігайте спокій</b><span>Не тікайте і не чиніть фізичного опору: це може обернутися кримінальною справою проти вас самих.</span></div></li>
+      <li><div><b>Попросіть представитися</b><span>Попросіть показати службове посвідчення, у поліцейського — жетон. Запам'ятайте або запишіть ПІБ і номер жетона. У групи оповіщення має працювати бодікамера.</span></div></li>
+      <li><div><b>Покажіть документи</b><span>Паспорт і військово-обліковий документ. Електронний документ у «Резерв+» з QR-кодом має таку ж силу, як паперовий: його можна показати з екрана телефона.</span></div></li>
+      <li><div><b>Увімкніть відеозапис</b><span>Знімати дії представників влади у публічному місці законно. Спокійно скажіть, що ведете зйомку.</span></div></li>
+      <li><div><b>Повідомте рідних і юриста</b><span>Скажіть близьким, де ви. Безоплатна правнича допомога: <a href="tel:0800213103">0 800 213 103</a>. Ви маєте право на правову допомогу.</span></div></li>
+    </ol>
+  </div>
+
+  <div class="section-title">Головне</div>
+
+  <details open>
+    <summary><span class="ic" style="background:#e6f4ec">✅</span><span class="tt">Що мають право робити</span></summary>
+    <div class="body">
+      <ul class="yes">
+        <li>Перевіряти паспорт і військово-обліковий документ.</li>
+        <li>Вручати повістки.</li>
+        <li>Затримати і доставити до ТЦК може лише <b>поліцейський</b>: якщо ви відмовилися отримати повістку або порушили правила військового обліку.</li>
+      </ul>
+      <p class="law">Постанова КМУ № 560 від 16.05.2024; ст. 262 КУпАП.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="ic" style="background:#fde8e8">⛔</span><span class="tt">Чого не мають права робити</span></summary>
+    <div class="body">
+      <ul class="no">
+        <li>Бити, погрожувати, застосовувати силу без законних підстав. Це злочин: заявляйте в поліцію або ДБР.</li>
+        <li>Забороняти зв'язатися з адвокатом (ст. 59 Конституції).</li>
+        <li>Вимикати бодікамеру чи видаляти записи. Бодікамери в групах оповіщення обов'язкові з 1 вересня 2025 року.</li>
+        <li>Змушувати підписувати документи, не давши їх прочитати.</li>
+      </ul>
+      <p class="law">Наказ Міноборони № 532 від 06.08.2024 (бодікамери).</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="ic" style="background:#e3eafb">📄</span><span class="tt">Повістка і штраф</span></summary>
+    <div class="body">
+      <ul>
+        <li>Відмова отримати повістку не звільняє від явки: складається акт, і це вважається порушенням.</li>
+        <li>Повістка поштою вважається врученою в день відмітки про отримання, відмову або відсутність за адресою. Тримайте адресу в «Резерв+» актуальною.</li>
+        <li>Штраф за порушення в особливий період — <b>17 000–25 500 грн</b> (ст. 210, 210-1 КУпАП). Оскаржити можна протягом <b>10 днів</b> (ст. 289 КУпАП).</li>
+      </ul>
+      <p class="law">Постанова КМУ № 560; КУпАП.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary><span class="ic" style="background:#f6eedb">🏢</span><span class="tt">Якщо вас доставили до ТЦК</span></summary>
+    <div class="body">
+      <ul>
+        <li>Вимагайте протокол про адміністративне затримання. Таке затримання триває, як правило, не довше 3 годин (ст. 263 КУпАП).</li>
+        <li>Повідомте рідних і зв'яжіться з юристом: <a href="tel:0800213103">0 800 213 103</a>.</li>
+        <li>Нічого не підписуйте, не прочитавши. Не згодні — так і напишіть у протоколі.</li>
+        <li>Висновок ВЛК можна оскаржити: до вищої ВЛК протягом 30 днів або до суду. Беріть із собою медичні документи.</li>
+      </ul>
+      <p class="law">КУпАП; роз'яснення Міноборони щодо ВЛК.</p>
+    </div>
+  </details>
+
+  <div class="section-title">Куди звертатися</div>
+  <div class="card">
+    <div class="contact"><div><b>Поліція</b><span>Насильство, незаконне утримання</span></div><a class="num" href="tel:102">102</a></div>
+    <div class="contact"><div><b>Безоплатна правнича допомога</b><span>Консультація, адвокат від держави</span></div><a class="num" href="tel:0800213103">0 800 213 103</a></div>
+    <div class="contact"><div><b>Уповноважений з прав людини</b><span>Порушення прав органами влади, зокрема ТЦК</span></div><a class="num" href="tel:1678">1678</a></div>
+    <div class="contact"><div><b>Військовий омбудсман</b><span>Права військових, пн–пт 8:00–20:00</span></div><a class="num" href="tel:1510">1510</a></div>
+    <div class="contact"><div><b>Гаряча лінія Міноборони</b><span>Питання військовослужбовців і родин</span></div><a class="num" href="tel:1512">1512</a></div>
+    <div class="contact"><div><b>ДБР</b><span>Злочини посадовців ТЦК: побиття, хабарі, перевищення влади</span></div><a class="num" href="tel:+380443002707">044 300 27 07</a></div>
+  </div>
+
+  <div class="section-title">Джерела</div>
+  <div class="card">
+    <ul class="sources">
+      <li><a href="https://www.kmu.gov.ua/storage/app/uploads/public/664/793/ae8/664793ae815f3299811357.pdf">Постанова КМУ № 560 від 16.05.2024 (kmu.gov.ua)</a></li>
+      <li><a href="https://armyinform.com.ua/2025/09/01/z-1-veresnya-grupy-opovishhennya-tczk-zobovyazani-nosyty-bodikamery-yak-cze-praczyuvatyme/">Бодікамери в групах оповіщення з 01.09.2025 (АрміяInform)</a></li>
+      <li><a href="https://armyinform.com.ua/2024/06/18/vijskovo-oblikovyj-dokument-u-zastosunku-rezerv-maye-taku-zh-yurydychnu-sylu-yak-i-paperovyj/">Документ у «Резерв+» має таку ж силу, як паперовий (АрміяInform)</a></li>
+      <li><a href="https://mod.gov.ua/explanation/yak-prokhodyt-vlk-ta-komu-chas-na-povtornyi-ohliad-haid-dlia-tsyvilnykh-i-viiskovykh">ВЛК: як проходить і як оскаржити (Міноборони)</a></li>
+      <li><a href="https://mod.gov.ua/zahist-prav-vijskovih">Захист прав військових, гаряча лінія 1512 (Міноборони)</a></li>
+      <li><a href="https://legalaid.gov.ua/kliyentam/pro-bezoplatnu-pravovu-dopomogu-bpd/kontakt-czentr/">Контакт-центр безоплатної правничої допомоги</a></li>
+      <li><a href="https://ombudsman.gov.ua/uk/zayavniku/forma-zapitu">Уповноважений Верховної Ради з прав людини</a></li>
+      <li><a href="https://dbr.gov.ua/news/yak-pravilno-povidomiti-pro-zlochin-do-dbr-videoinstrukciya-dlya-gromadyan">Як повідомити про злочин до ДБР</a></li>
+      <li><a href="https://www.pravda.com.ua/columns/2026/09/18/8052809/">Повістки поштою: вручення та оскарження штрафу (Українська правда, 2026)</a></li>
+      <li><a href="https://sud.ua/uk/news/ukraine/360557-ofis-voennogo-ombudsmana-zapustil-goryachuyu-liniyu-dlya-obrascheniy-voennosluzhaschikh">Гаряча лінія Військового омбудсмана 1510 (sud.ua)</a></li>
+    </ul>
+  </div>
+
+  <p class="disclaimer">Ця пам'ятка — загальна інформація, а не юридична консультація. Закони і правила змінюються. Якщо у вас конкретна ситуація, заповніть анкету або напишіть нам у бот: допоможемо розібратися.</p>
+</main>
+
+<footer class="nav">
+  <a class="btn ghost" id="toForm" href="index.html" hidden>← До анкети</a>
+  <button class="btn" id="close" type="button">Зрозуміло</button>
+</footer>
+
+<script>
+const tg = window.Telegram ? window.Telegram.WebApp : null;
+const can = v => !!(tg && tg.isVersionAtLeast && tg.isVersionAtLeast(v));
+if (tg) {
+  tg.ready();
+  tg.expand();
+  if (can("6.9")) tg.setHeaderColor("#0b1a3d");
+}
+// Открыли из анкеты (prava.html?from=form): показываем кнопку возврата
+const fromForm = new URLSearchParams(location.search).get("from") === "form";
+document.getElementById("toForm").hidden = !fromForm;
+document.getElementById("close").addEventListener("click", () => {
+  if (tg && tg.initData) tg.close();
+  else window.scrollTo({ top: 0, behavior: "smooth" });
+});
+// Открываем один раздел за раз, чтобы страница не превращалась в простыню
+document.querySelectorAll("details").forEach(d => d.addEventListener("toggle", () => {
+  if (d.open) document.querySelectorAll("details[open]").forEach(o => { if (o !== d) o.open = false; });
+}));
+// Ссылки на источники открываем во внешнем браузере
+document.querySelectorAll(".sources a").forEach(a => a.addEventListener("click", e => {
+  if (tg && tg.initData) { e.preventDefault(); tg.openLink(a.href); }
+}));
+</script>
+</body>
+</html>
