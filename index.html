@@ -169,6 +169,7 @@
   .btn.primary { background: var(--accent); color: var(--accent-text); }
   .btn.primary:disabled { opacity: .4; cursor: default; }
   .btn.ghost { background: var(--card); color: var(--text); flex: 0 0 auto; }
+  .btn.copy { display: block; width: 100%; max-width: none; margin-top: 12px; background: var(--card); color: var(--accent); border: 1.5px solid var(--accent); }
   .btn[hidden] { display: none; }
 
   pre { white-space: pre-wrap; word-break: break-word; background: var(--card); padding: 12px; border-radius: 12px; font-size: 12px; }
@@ -715,13 +716,15 @@ function submit() {
     return;
   }
   if (inTelegram) {
-    if (tg.initDataUnsafe && tg.initDataUnsafe.query_id) {
-      showError("Відкрийте анкету кнопкою «Заповнити анкету» внизу чату з ботом.");
-      return;
-    }
     haptic("success");
     if (can("6.2")) tg.disableClosingConfirmation();
-    tg.sendData(JSON.stringify(data)); // Telegram сам закроет форму
+    try {
+      tg.sendData(JSON.stringify(data)); // при успехе Telegram сам закроет форму
+    } catch (e) {
+      console.error(e);
+    }
+    // Форма не закрылась: значит, её открыли не кнопкой клавиатуры (например, из меню), и Telegram отправку не принял
+    setTimeout(() => showFallback(data), 1500);
     return;
   }
   // Просмотр в обычном браузере: показываем, что ушло бы боту
@@ -734,6 +737,44 @@ function submit() {
   $count.textContent = "Готово";
   $back.hidden = true;
   $next.hidden = true;
+}
+
+// Запасной путь: скопировать ответы текстом и вставить в чат с ботом (бот перешлёт их админам)
+function answersAsText(data) {
+  const lines = ["📋 Анкета", "Тема: " + data.t, ""];
+  for (const [q, a] of data.q) lines.push(q + ":", a, "");
+  return lines.join("\n").trim();
+}
+
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    const area = document.createElement("textarea");
+    area.value = text;
+    document.body.append(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    area.remove();
+    return ok;
+  }
+}
+
+function showFallback(data) {
+  const box = $screen.querySelector(".error");
+  if (!box) return;
+  haptic("error");
+  $screen.querySelectorAll(".btn.copy").forEach(b => b.remove()); // повторное нажатие «Надіслати»
+  box.textContent = "Не вдалося надіслати з цього вікна. Закрийте анкету і відкрийте її кнопкою «📝 Заповнити анкету» " +
+    "внизу чату з ботом (якщо кнопки не видно, натисніть значок клавіатури біля поля вводу або напишіть /start). " +
+    "Або скопіюйте відповіді і вставте їх у чат з ботом звичайним повідомленням.";
+  const copy = el("button", "btn copy", "📋 Скопіювати відповіді");
+  copy.type = "button";
+  copy.addEventListener("click", async () => {
+    copy.textContent = (await copyText(answersAsText(data))) ? "✅ Скопійовано — вставте у чат з ботом" : "Не вдалося скопіювати";
+  });
+  box.after(copy);
 }
 
 $next.addEventListener("click", () => go(1));
