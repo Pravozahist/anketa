@@ -405,7 +405,9 @@ function lineIcon(name) {
 
 const LIMIT = 4096; // Telegram принимает от формы не больше 4096 байт
 const tg = window.Telegram ? window.Telegram.WebApp : null;
-const inTelegram = !!(tg && tg.initData);
+// Внутри Telegram всегда известна платформа. initData для проверки не годится:
+// iPhone не передаёт его, когда форму открыли кнопкой клавиатуры.
+const inTelegram = !!(tg && tg.platform && tg.platform !== "unknown");
 const can = v => !!(tg && tg.isVersionAtLeast && tg.isVersionAtLeast(v));
 if (tg) {
   tg.ready();

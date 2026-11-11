@@ -256,6 +256,7 @@
 <script>
 const tg = window.Telegram ? window.Telegram.WebApp : null;
 const can = v => !!(tg && tg.isVersionAtLeast && tg.isVersionAtLeast(v));
+const inTelegram = !!(tg && tg.platform && tg.platform !== "unknown"); // initData есть не везде (iPhone)
 if (tg) {
   tg.ready();
   tg.expand();
@@ -265,7 +266,7 @@ if (tg) {
 const fromForm = new URLSearchParams(location.search).get("from") === "form";
 document.getElementById("toForm").hidden = !fromForm;
 document.getElementById("close").addEventListener("click", () => {
-  if (tg && tg.initData) tg.close();
+  if (inTelegram) tg.close();
   else window.scrollTo({ top: 0, behavior: "smooth" });
 });
 // Открываем один раздел за раз, чтобы страница не превращалась в простыню
@@ -274,7 +275,7 @@ document.querySelectorAll("details").forEach(d => d.addEventListener("toggle", (
 }));
 // Ссылки на источники открываем во внешнем браузере
 document.querySelectorAll(".sources a").forEach(a => a.addEventListener("click", e => {
-  if (tg && tg.initData) { e.preventDefault(); tg.openLink(a.href); }
+  if (inTelegram) { e.preventDefault(); tg.openLink(a.href); }
 }));
 </script>
 </body>
